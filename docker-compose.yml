@@ -1,0 +1,102 @@
+services:
+    plex:
+        image: linuxserver/plex:amd64-1.43.3
+        container_name: plex
+        restart: unless-stopped
+        network_mode: host
+        environment:
+            - PUID=${PUID}
+            - PGID=${PGID}
+            - TZ=${TZ}
+            - VERSION=docker
+            - PLEX_CLAIM=${PLEX_CLAIM}
+        volumes:
+            - ${PATH_CONF}/config/plex:/config
+            - ${PATH_MEDIA}:/media
+    sonarr:
+        container_name: sonarr
+        image: linuxserver/sonarr:amd64-4.0.19
+        restart: unless-stopped
+        environment:
+            - PUID=${PUID}
+            - PGID=${PGID}
+            - TZ=${TZ}
+        ports:
+            - 8989:8989
+        volumes:
+            - ${PATH_CONF}/config/sonarr:/config
+            - ${PATH_MEDIA}:/data
+    radarr:
+        container_name: radarr
+        image: linuxserver/radarr:amd64-6.3.0
+        restart: unless-stopped
+        environment:
+            - PUID=${PUID}
+            - PGID=${PGID}
+            - TZ=${TZ}
+        ports:
+            - 7878:7878
+        volumes:
+            - ${PATH_CONF}/config/radarr:/config
+            - ${PATH_MEDIA}:/data
+    prowlarr:
+        image: linuxserver/prowlarr:2.5.2
+        container_name: prowlarr
+        environment:
+            - PUID=${PUID}
+            - PGID=${PGID}
+            - TZ=${TZ}
+        volumes:
+            - ${PATH_CONF}/config/prowlarr:/config
+        ports:
+            - 9696:9696
+        dns:
+            - 8.8.8.8
+            - 9.9.9.9
+            - 1.1.1.1
+        restart: unless-stopped
+    wireguard:
+        image: linuxserver/wireguard:amd64-1.0.20260223
+        container_name: wireguard
+        cap_add:
+            - NET_ADMIN
+        environment:
+            - PUID=${PUID}
+            - PGID=${PGID}
+            - TZ=${TZ}
+            - PEERS=${WIREGUARD_PEERS}
+        volumes:
+            - ${PATH_CONF}/config/wireguard:/config
+        ports:
+            - 51820:51820/udp
+        sysctls:
+            - net.ipv4.conf.all.src_valid_mark=1
+        restart: unless-stopped
+    qbittorrent:
+        image: lscr.io/linuxserver/qbittorrent:5.2.3-libtorrentv1
+        container_name: qbittorrent
+        environment:
+            - PUID=${PUID}
+            - PGID=${PGID}
+            - TZ=${TZ}
+            - WEBUI_PORT=8081
+        volumes:
+            - ${PATH_CONF}/config/qbittorrent:/config
+            - ${PATH_MEDIA}:/data
+        ports:
+            - 8081:8081            # Web UI
+            - 6881:6881            # Torrent TCP
+            - 6881:6881/udp        # Torrent UDP
+        restart: unless-stopped
+    homepage:
+        image: ghcr.io/gethomepage/homepage:v2.1.2
+        container_name: homepage
+        restart: unless-stopped
+        ports:
+            - 80:3000
+        volumes:
+            - ${PATH_CONF}/config/homepage:/app/config
+            - /var/run/docker.sock:/var/run/docker.sock:ro
+            - ${PATH_MEDIA}:/mnt/media:ro
+        environment:
+            HOMEPAGE_ALLOWED_HOSTS: ${HOMEPAGE_ALLOWED_HOSTS}

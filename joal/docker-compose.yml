@@ -1,0 +1,10 @@
+services:
+    joal:
+        image: anthonyraymond/joal:2.1.30
+        container_name: joal
+        restart: unless-stopped
+        volumes:
+            - ${PATH_JOAL}/conf:/data
+        ports:
+            - 3231:3231
+        command: ["--joal-conf=/data", "--spring.main.web-environment=true", "--server.port=3231", "--joal.ui.path.prefix=${JOAL_UI_PREFIX}", "--joal.ui.secret-token=${JOAL_UI_TOKEN}"]

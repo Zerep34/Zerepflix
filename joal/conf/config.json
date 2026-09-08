@@ -1,0 +1,7 @@
+{
+  "minUploadRate" : 30,
+  "maxUploadRate" : 160,
+  "simultaneousSeed" : 20,
+  "client" : "deluge-2.0.3.client",
+  "keepTorrentWithZeroLeechers" : true
+}
